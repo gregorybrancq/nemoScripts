@@ -8,20 +8,37 @@ import os
 import re
 import subprocess
 import sys
+from optparse import OptionParser
 
 import logging
 
 
+# sys.path.append('/home/greg/Greg/work/env/pythonCommon')
+# from message import MessageDialogEnd
+# from basic import getLogDir
+
+
 class NemoBase:
-    def __init__(self, root_log, arguments, auth_ext, res_ext):
+    def __init__(self, root_log, auth_ext, res_ext):
         self.logNB = logging.getLogger('.'.join([root_log, __name__]))
         self.logNB.info("creating an instance")
-        self.arguments = arguments
         self.auth_ext = auth_ext
         self.res_ext = res_ext
         self.warning = 0
         self.file_list = list()
         self.parse_line = str()
+
+    def parsingLine(self):
+        parser = OptionParser()
+        parser.add_option(
+            "-d",
+            "--debug",
+            action="store_true",
+            dest="debug",
+            default=False,
+            help="Display all debug information"
+        )
+        (parsedArgs, self.arguments) = parser.parse_args()
 
     def addFile(self, file_name):
         self.logNB.info("In  addFile file_name=" + str(file_name))
@@ -85,9 +102,13 @@ class NemoBase:
 
     def run(self):
         self.logNB.info("In  run")
+        self.parsingLine()
         self.getFileList()
         self.checkFileList("No image has been found.")
         self.convert()
-        #self.runJob()
+        # self.runJob()
         self.analyzeJob()
-        #(file_list, count_warn) = listFromArgs(log, HEADER, args, auth_ext)
+        # (file_list, count_warn) = listFromArgs(log, HEADER, args, auth_ext)
+
+    ## End dialog
+    # MessageDialogEnd(count_warn, count_error, logFile, "Convert images", "\nJob fini.")
