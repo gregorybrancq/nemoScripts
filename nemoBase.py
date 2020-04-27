@@ -4,67 +4,90 @@
 """
 Class for Nemo scripts
 """
+import os
+import re
+import subprocess
+import sys
+
 import logging
 
+
 class NemoBase:
-    def __init__(self, root_log):
-        self.logger = logging.getLogger('.'.join([root_log, __name__]))
-        self.logger.info("creating an instance")
-        self.extension = list()
+    def __init__(self, root_log, arguments, auth_ext, res_ext):
+        self.logNB = logging.getLogger('.'.join([root_log, __name__]))
+        self.logNB.info("creating an instance")
+        self.arguments = arguments
+        self.auth_ext = auth_ext
+        self.res_ext = res_ext
+        self.warning = 0
         self.file_list = list()
         self.parse_line = str()
 
-    def oo(self):
-        self.logger.info("In222 oo")
+    def addFile(self, file_name):
+        self.logNB.info("In  addFile file_name=" + str(file_name))
+        dir_n = os.path.dirname(file_name)
+        dir_n1 = dir_n.replace('(', '\(')
+        dir_n2 = dir_n1.replace(')', '\)')
+        file_name_wo_dir = re.sub(dir_n2 + "\/", '', file_name)
+        (fileN, extN) = os.path.splitext(file_name_wo_dir)
+        if self.auth_ext.__contains__(extN):
+            self.logNB.info("In  addFile dir_n=" + str(dir_n) + ", fileN=" + str(fileN) + ", extN=" + str(extN))
+            self.file_list.append([dir_n, fileN, extN])
+        else:
+            self.warning += 1
+            self.logNB.debug(
+                "In  addFile file " + str(file_name_wo_dir) + " is not a good extension as " + str(self.auth_ext))
 
     def getFileList(self):
-        self.logger.info(header, "In  listFromArgs")
-        typeList = list()
-        warnNb = 0
+        self.logNB.debug("In  getFileList, arguments=%s" % str(self.arguments))
+        if len(self.arguments) != 0:
+            for file_or_dir in self.arguments:
+                if os.path.isdir(file_or_dir):
+                    self.logNB.debug("In  getFileList dir=" + str(file_or_dir))
+                    for dir_path, dir_names, file_names in os.walk(file_or_dir):
+                        for file_name in file_names:
+                            self.addFile(os.path.join(dir_path, file_name))
 
-        if len(args) != 0:
-            for arg in args:
-                # arg.encode('latin1')
-                if os.path.isdir(arg):
-                    self.logger.info(header, "In  listFromArgs dir=" + str(arg))
-                    for dirpath, dirnames, filenames in os.walk(arg):
-                        for filename in filenames:
-                            (typeList, warnNb) = addFile(self.logger, header, os.path.join(dirpath, filename), ext,
-                                                         typeList,
-                                                         warnNb)
+                elif os.path.isfile(file_or_dir):
+                    self.logNB.debug("In  getFileList file=" + str(file_or_dir))
+                    self.addFile(file_or_dir)
 
-                elif os.path.isfile(arg):
-                    self.logger.info(header, "In  listFromArgs file=" + str(arg))
-                    (typeList, warnNb) = addFile(self.logger, header, arg, ext, typeList, warnNb)
+        self.logNB.info("Out getFileList, file_list=" + str(self.file_list))
 
-        self.logger.info(header, "Out listFromArgs typeList=" + str(typeList))
-        return typeList, warnNb
-        (self._file_list, count_warn) = listFromArgs(self.logger, HEADER, args, auth_ext)
+    def checkFileList(self, msg):
+        if len(self.file_list) == 0:
+            self.logNB.error(msg)
+            sys.exit(1)
 
-    def runJob(self):
-        pass
+    def convert(self):
+        self.logNB.info("In  convert")
+        old_dir = os.getcwd()
+
+        for (dir_name, file_name, file_ext) in self.file_list:
+            self.logNB.info("In  runJob directory " + str(dir_name) + "  runJob " + file_name + file_ext)
+
+            if dir_name != "":
+                os.chdir(dir_name)
+
+            cmd = 'convert "' + file_name + file_ext + '" "' + file_name + self.res_ext + '"'
+            self.logNB.info("In  runJob cmd=" + str(cmd))
+            proc = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT)
+            proc.wait()
+            if proc.returncode != 0:
+                count_error += 1
+                self.logNB.error("In  runJob file: issue with " + str(os.path.join(dir_name, file_name + file_ext)))
+
+            if dir_name != "":
+                os.chdir(old_dir)
 
     def analyzeJob(self):
         pass
 
-    # def listFromArgs(log, header, args, ext):
-    #    log.info(header, "In  listFromArgs")
-    #    typeList = list()
-    #    warnNb = 0
-
-    #    if (len(args) != 0):
-    #        for arg in args:
-    #            # arg.encode('latin1')
-    #            if (os.path.isdir(arg)):
-    #                log.info(header, "In  listFromArgs dir=" + str(arg))
-    #                for dirpath, dirnames, filenames in os.walk(arg):
-    #                    for filename in filenames:
-    #                        (typeList, warnNb) = addFile(log, header, os.path.join(dirpath, filename), ext, typeList,
-    #                                                     warnNb)
-
-    #            elif (os.path.isfile(arg)):
-    #                log.info(header, "In  listFromArgs file=" + str(arg))
-    #                (typeList, warnNb) = addFile(log, header, arg, ext, typeList, warnNb)
-
-    #    log.info(header, "Out listFromArgs typeList=" + str(typeList))
-    #    return typeList, warnNb
+    def run(self):
+        self.logNB.info("In  run")
+        self.getFileList()
+        self.checkFileList("No image has been found.")
+        self.convert()
+        #self.runJob()
+        self.analyzeJob()
+        #(file_list, count_warn) = listFromArgs(log, HEADER, args, auth_ext)
