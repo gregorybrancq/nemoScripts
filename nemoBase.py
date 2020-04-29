@@ -17,18 +17,27 @@ from message import MessageDialogEnd
 
 
 class NemoBase:
-    def __init__(self, log_name, root_log, arguments, auth_ext, res_ext, msg_not_found):
+    def __init__(self, log_name, root_log, arguments):
         self.logNB = logging.getLogger('.'.join([root_log, __name__]))
         self.logNB.debug("In init nemoBase")
         self.prog_name = log_name
         self.log_name = os.path.join(getLogDir(), log_name) + ".log"
         self.arguments = arguments
-        self.auth_ext = auth_ext
-        self.res_ext = res_ext
-        self.msg_not_found = msg_not_found
+        self.command = list()
+        self.command_param = True
+        self.auth_ext = list()
+        self.res_ext = str()
+        self.msg_not_found = str()
         self.file_list = list()
         self.msg_end = ""
         self.error = False
+
+    def setConfig(self, command, command_param, auth_ext, res_ext, msg_not_found):
+        self.command = command
+        self.command_param = command_param
+        self.auth_ext = auth_ext
+        self.res_ext = res_ext
+        self.msg_not_found = msg_not_found
 
     def addFile(self, file_name):
         self.logNB.debug("In  addFile file_name=" + str(file_name))
@@ -61,20 +70,23 @@ class NemoBase:
 
         self.logNB.info("file_list=%s" % str(self.file_list))
 
-    def convert(self):
+    def compute(self):
         old_dir = os.getcwd()
 
         for (dir_name, file_name, file_ext) in self.file_list:
             if dir_name != "":
                 os.chdir(dir_name)
 
-            cmd = ['convert', file_name + file_ext, file_name + self.res_ext]
+            cmd = self.command.split(" ")
+            cmd.append(file_name + file_ext)
+            if self.command_param :
+                cmd.append(file_name + self.res_ext)
             self.logNB.info("Run command %s" % str(cmd))
             process = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
             process.wait()
-            if process.returncode != 0:
+            if process.returncode != 0 or not os.path.isfile(file_name + self.res_ext):
                 self.error = True
-                self.msg_end += "In %s, cmd failed : %s\n" % (os.getcwd(), str(cmd))
+                self.msg_end += "In %s, cmd failed : \n  %s\n" % (os.getcwd(), str(cmd))
             else:
                 self.msg_end += "Converted : %s\n" % (os.path.join(os.getcwd(), file_name + self.res_ext))
 
@@ -96,9 +108,8 @@ class NemoBase:
             MessageDialogEnd(error=False, log_file=self.log_name, title=self.prog_name, msg1="OK",
                              msg2=self.msg_end)
 
-    def run(self):
+    def runJob(self):
         self.getFileList()
         if len(self.file_list) != 0:
-            self.convert()
+            self.compute()
         self.analyze()
-        # self.runJob()
