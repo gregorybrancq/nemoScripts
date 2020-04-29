@@ -1,155 +1,42 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'''
+"""
 Convert pdf to jpg
-'''
+"""
+
+# Import
+import logging
+
+from common import createLog, parsingLine
+from nemoBase import NemoBase
 
 
+class ConvertPdf2Jpg(NemoBase):
+    def __init__(self, root_log, args):
+        root_log_name = '.'.join([root_log, self.__class__.__name__])
+        self.logCB = logging.getLogger(root_log_name)
+        super().__init__(root_log, root_log_name, args)
 
-## Import
-import sys
-import os
-from datetime import datetime
-import subprocess
-from optparse import OptionParser
-
-## common
-from python_common import *
-HEADER = "PdfTOJpg"
-
-## directory
-logDir   = getLogDir()
-
-###############################################
+    def run(self):
+        command = "convert -density 248x248"
+        command_param = True
+        auth_ext = [".pdf", ".PDF"]
+        res_ext = ".jpg"
+        msg_not_found = "No image has been found."
+        self.setConfig(command, command_param, auth_ext, res_ext, msg_not_found)
+        self.runJob()
 
 
-
-###############################################
-###############################################
-##              Line Parsing                 ##
-###############################################
-###############################################
-
-parsedArgs = {}
-parser = OptionParser()
-
-
-parser.add_option(
-    "-d",
-    "--debug",
-    action  = "store_true",
-    dest    = "debug",
-    default = False,
-    help    = "Display all debug information"
-    )
-
-(parsedArgs , args) = parser.parse_args()
-
-###############################################
-
-
-
-###############################################
-## Global variables
-###############################################
-
-t = str(datetime.today().isoformat("_"))
-logFile = os.path.join(logDir, HEADER + "_" + t + ".log")
-errC = 0
-
-###############################################
-
-
-
-
-
-###############################################
-###############################################
-##                FUNCTIONS                  ##
-###############################################
-###############################################
-
-def convertFile(fileList) :
-    global log
-    global errC
-    log.info(HEADER, "In  convertFile")
-
-    oldDir = os.getcwd()
-
-    for (fileD, fileN, fileE) in fileList :
-        log.info(HEADER, "In  convertFile directory " + str(fileD) + "  convertFile " + fileN + fileE)
-
-        if (fileD != "") :
-            os.chdir(fileD)
-
-        cmd='convert -density 248x248 "' + fileN + fileE + '" "' + fileN + '.jpg"'
-        log.info(HEADER, "In  convertFile cmd=" + str(cmd))
-        procPopen = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT)
-        procPopen.wait()
-        if (procPopen.returncode != 0) :
-            errC += 1
-            log.error(HEADER, "In  convertFile file: issue with " + str(os.path.join(fileD, fileN + fileE)))
-
-        if (fileD != "") :
-            os.chdir(oldDir)
-
-    log.info(HEADER, "Out convertFile")
-
-###############################################
-
-
-
-
-
-
-###############################################
-###############################################
-###############################################
-##                 MAIN                      ##
-###############################################
-###############################################
-###############################################
-
-
-def main() :
-    global log
-    warnC = 0
-    log.info(HEADER, "In  main")
-
-    fileList = list()
-
-    log.info(HEADER, "In  main parsedArgs=" + str(parsedArgs))
-    log.info(HEADER, "In  main args=" + str(args))
-
-    ## Create list of files
-    extAuth=[".pdf", ".PDF"]
-    (fileList, warnC) = listFromArgs(log, HEADER, args, extAuth)
-
-    ## Verify if there is at least one file to convert
-    if (len(fileList) == 0) :
-        MessageDialog(type_='error', title="Convert images", message="\nNo image has been found\n").run()
-    else :
-        log.info(HEADER, "In  main images to convert = " + str(len(fileList)))
-
-    ## Convert them
-    convertFile(fileList)
-
-    ## End dialog
-    MessageDialogEnd(warnC, errC, logFile, "Convert images", "\nJob fini : " + str(len(fileList)) + " images converties.")
-    
-    log.info(HEADER, "Out main")
-
-###############################################
-
-
+def main():
+    # Create log class
+    root_log = 'convertPdf2Jpg'
+    (parsedArgs, args) = parsingLine()
+    logger = createLog(root_log, parsedArgs)
+    logger.info("START")
+    ConvertPdf2Jpg(root_log, args).run()
+    logger.info("STOP")
 
 
 if __name__ == '__main__':
- 
-    ## Create log class
-    log = LOGC(logFile, HEADER, parsedArgs.debug)
-
     main()
-
-
