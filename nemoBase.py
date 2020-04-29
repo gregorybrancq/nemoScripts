@@ -19,6 +19,7 @@ from message import MessageDialogEnd
 class NemoBase:
     def __init__(self, log_name, root_log, arguments, auth_ext, res_ext, msg_not_found):
         self.logNB = logging.getLogger('.'.join([root_log, __name__]))
+        self.logNB.debug("In init nemoBase")
         self.prog_name = log_name
         self.log_name = os.path.join(getLogDir(), log_name) + ".log"
         self.arguments = arguments
