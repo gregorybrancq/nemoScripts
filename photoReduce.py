@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Convert bmp to jpg
+Reduce the image size
 """
 
 # Import
