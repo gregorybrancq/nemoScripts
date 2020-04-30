@@ -105,7 +105,7 @@ class NemoBase:
         self.logNB.info("file_list=%s" % str(self.file_list))
 
     def compute(self):
-        """Execute the command and examine the result.
+        """Execute the command for each file and examine the result.
         """
         old_dir = os.getcwd()
 
@@ -136,6 +136,16 @@ class NemoBase:
             if dir_name != "":
                 os.chdir(old_dir)
 
+    def computeProgram(self):
+        """Execute the program for the first argument.
+        """
+        (dir_name, file_name, file_ext) = self.file_list[0]
+        cmd = self.command.split(" ")
+        cmd.append(os.path.join(dir_name, file_name + file_ext))
+        self.logNB.info("Run command %s" % str(cmd))
+        process = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
+        process.wait()
+
     def analyze(self):
         """Print a message dialog with the result of the command.
         """
@@ -153,7 +163,7 @@ class NemoBase:
             MessageDialogEnd(error=False, log_file=self.log_name, title=self.prog_name, msg1="OK",
                              msg2=self.msg_end)
 
-    def runOneCommand(self):
+    def runCommand(self):
         """ Get the file list, if it's not null, execute the command on each file,
         and analyze the result.
         """
@@ -161,3 +171,11 @@ class NemoBase:
         if len(self.file_list) != 0:
             self.compute()
         self.analyze()
+
+    def runProgram(self):
+        """ Get the file list, execute the program with the first file in argument.
+        """
+        self.getFileList()
+        if len(self.file_list) != 0:
+            self.computeProgram()
+        #self.analyze()
