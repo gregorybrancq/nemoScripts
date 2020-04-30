@@ -93,16 +93,14 @@ class NemoBase:
         if len(self.arguments) != 0:
             for file_or_dir in self.arguments:
                 if os.path.isdir(file_or_dir):
-                    self.logNB.debug("In  getFileList, dir=%s" % str(file_or_dir))
                     for dir_path, dir_names, file_names in os.walk(file_or_dir):
                         for file_name in file_names:
                             self._addFile(os.path.join(dir_path, file_name))
 
                 elif os.path.isfile(file_or_dir):
-                    self.logNB.debug("In  getFileList file=" + str(file_or_dir))
                     self._addFile(file_or_dir)
 
-        self.logNB.info("file_list=%s" % str(self.file_list))
+        self.logNB.info("Out getFileList, file_list=%s" % str(self.file_list))
 
     def compute(self):
         """Execute the command for each file and examine the result.
@@ -136,13 +134,15 @@ class NemoBase:
             if dir_name != "":
                 os.chdir(old_dir)
 
-    def computeProgram(self):
+    def computeOnce(self):
         """Execute the program for the first argument.
         """
         (dir_name, file_name, file_ext) = self.file_list[0]
         cmd = self.command.split(" ")
-        cmd.append(os.path.join(dir_name, file_name + file_ext))
-        self.logNB.info("Run command %s" % str(cmd))
+        if dir_name != "":
+            os.chdir(dir_name)
+        cmd.append(os.getcwd())
+        self.logNB.info("Run command : %s" % str(cmd))
         process = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
         process.wait()
 
@@ -177,5 +177,4 @@ class NemoBase:
         """
         self.getFileList()
         if len(self.file_list) != 0:
-            self.computeProgram()
-        #self.analyze()
+            self.computeOnce()

@@ -26,7 +26,7 @@ class RenameFiles(NemoBase):
         res_ext = ""
         msg_not_found = "No file has been found."
         self.setConfig(command, command_param, delete_file, auth_ext, res_ext, msg_not_found)
-        self.runProgram(on_dir=True)
+        self.runProgram()
 
 
 def main():
