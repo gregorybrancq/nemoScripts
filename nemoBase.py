@@ -76,7 +76,7 @@ class NemoBase:
         dir_n2 = dir_n1.replace(')', '\)')
         file_name_wo_dir = re.sub(dir_n2 + "\/", '', file_name)
         (fileN, extN) = os.path.splitext(file_name_wo_dir)
-        if self.auth_ext.__contains__(extN):
+        if len(self.auth_ext) == 0 or self.auth_ext.__contains__(extN):
             self.logNB.debug("In  _addFile dir_n=" + str(dir_n) + ", fileN=" + str(fileN) + ", extN=" + str(extN))
             self.file_list.append([dir_n, fileN, extN])
         else:
@@ -125,7 +125,10 @@ class NemoBase:
                     self.error = True
                     self.msg_end += "In %s, cmd failed : \n  %s\n" % (os.getcwd(), str(cmd))
             else:
-                self.msg_end += "Converted : %s\n" % (os.path.join(os.getcwd(), file_name + self.res_ext))
+                if self.res_ext != "":
+                    self.msg_end += "Executed : %s\n" % (os.path.join(os.getcwd(), file_name + self.res_ext))
+                else:
+                    self.msg_end += "Executed : %s\n" % (os.path.join(os.getcwd(), file_name + file_ext))
                 if self.delete_file:
                     send2trash.send2trash(file_name + file_ext)
 
