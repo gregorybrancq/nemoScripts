@@ -21,10 +21,11 @@ class ConvertMp42Mp3(NemoBase):
     def run(self):
         command = 'pacpl --to mp3 -bitrate 320'
         command_param = False
+        delete_file = False
         auth_ext = [".mp4", ".MP4"]
         res_ext = ".mp3"
         msg_not_found = "No video has been found."
-        self.setConfig(command, command_param, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_param, delete_file, auth_ext, res_ext, msg_not_found)
         self.runOneCommand()
 
 
