@@ -119,13 +119,15 @@ class NemoBase:
             self.logNB.info("Run command %s" % str(cmd))
             process = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
             process.wait()
-            if process.returncode != 0 or not os.path.isfile(file_name + self.res_ext):
-                self.error = True
-                self.msg_end += "In %s, cmd failed : \n  %s\n" % (os.getcwd(), str(cmd))
-                if self.delete_file:
-                    send2trash.send2trash(file_name + file_ext)
+            if process.returncode != 0 :
+                # be sure that result file is not well generated (if expected)
+                if self.res_ext != "" and not os.path.isfile(file_name + self.res_ext):
+                    self.error = True
+                    self.msg_end += "In %s, cmd failed : \n  %s\n" % (os.getcwd(), str(cmd))
             else:
                 self.msg_end += "Converted : %s\n" % (os.path.join(os.getcwd(), file_name + self.res_ext))
+                if self.delete_file:
+                    send2trash.send2trash(file_name + file_ext)
 
             if dir_name != "":
                 os.chdir(old_dir)
