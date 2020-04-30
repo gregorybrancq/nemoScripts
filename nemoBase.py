@@ -35,7 +35,7 @@ class NemoBase:
         self.prog_name = log_name
         self.log_name = os.path.join(getLogDir(), log_name) + ".log"
         self.arguments = arguments
-        self.command = list()
+        self.command = str()
         self.command_param = True
         self.delete_file = False
         self.auth_ext = list()
@@ -58,6 +58,7 @@ class NemoBase:
         """
         self.command = command
         self.command_param = command_param
+        self.delete_file = delete_file
         self.auth_ext = auth_ext
         self.res_ext = res_ext
         self.msg_not_found = msg_not_found
@@ -119,7 +120,7 @@ class NemoBase:
             self.logNB.info("Run command %s" % str(cmd))
             process = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
             process.wait()
-            if process.returncode != 0 :
+            if process.returncode != 0:
                 # be sure that result file is not well generated (if expected)
                 if self.res_ext != "" and not os.path.isfile(file_name + self.res_ext):
                     self.error = True

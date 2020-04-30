@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Turn on images depending on the EXIF information
+Rotate images depending on the EXIF information
 """
 
 # Import
