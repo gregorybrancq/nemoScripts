@@ -25,7 +25,7 @@ class ConvertMp42Mp3(NemoBase):
         res_ext = ".mp3"
         msg_not_found = "No video has been found."
         self.setConfig(command, command_param, auth_ext, res_ext, msg_not_found)
-        self.runJob()
+        self.runOneCommand()
 
 
 

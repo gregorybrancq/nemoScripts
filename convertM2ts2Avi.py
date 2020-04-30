@@ -27,7 +27,7 @@ class ConvertM2ts2Avi(NemoBase):
         res_ext = ".avi"
         msg_not_found = "No video has been found."
         self.setConfig(command, command_param, auth_ext, res_ext, msg_not_found)
-        self.runJob()
+        self.runOneCommand()
 
 
 def main():
