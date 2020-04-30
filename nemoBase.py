@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Class for Nemo scripts
+Basic functions for file programs as Nemo or Nautilus.
 """
 import os
 import re
@@ -17,7 +17,18 @@ from message import MessageDialogEnd
 
 
 class NemoBase:
+    """Class NemoBase
+
+    Specify some usual functions, and by default will execute the following computation runJob.
+    """
+
     def __init__(self, log_name, root_log, arguments):
+        """Initialization of the class
+
+        :param log_name: it indicates the log name
+        :param root_log: allows to keep hierarchy for logging
+        :param arguments: arguments pass out to the file program (Nemo or Nautilus
+        """
         self.logNB = logging.getLogger('.'.join([root_log, __name__]))
         self.logNB.debug("In init nemoBase")
         self.prog_name = log_name
@@ -33,28 +44,47 @@ class NemoBase:
         self.error = False
 
     def setConfig(self, command, command_param, auth_ext, res_ext, msg_not_found):
+        """Set the configuration of the class parameters
+
+        :param command: the command to execute
+        :param command_param: specify the output file
+        :param auth_ext: the authorized extension
+        :param res_ext: the file extension result
+        :param msg_not_found: if no file matches, it will indicate this message information
+        :return: updated attributes
+        """
         self.command = command
         self.command_param = command_param
         self.auth_ext = auth_ext
         self.res_ext = res_ext
         self.msg_not_found = msg_not_found
 
-    def addFile(self, file_name):
-        self.logNB.debug("In  addFile file_name=" + str(file_name))
+    def _addFile(self, file_name):
+        """Function to be used internally with getFileList
+        it checks if the selected file corresponds to the authorization extension
+        and transforms the () characters
+
+        :param file_name: the file to treat
+        :return: update file_list attribute
+        """
+        self.logNB.debug("In  _addFile file_name=" + str(file_name))
         dir_n = os.path.dirname(file_name)
         dir_n1 = dir_n.replace('(', '\(')
         dir_n2 = dir_n1.replace(')', '\)')
         file_name_wo_dir = re.sub(dir_n2 + "\/", '', file_name)
         (fileN, extN) = os.path.splitext(file_name_wo_dir)
         if self.auth_ext.__contains__(extN):
-            self.logNB.debug("In  addFile dir_n=" + str(dir_n) + ", fileN=" + str(fileN) + ", extN=" + str(extN))
+            self.logNB.debug("In  _addFile dir_n=" + str(dir_n) + ", fileN=" + str(fileN) + ", extN=" + str(extN))
             self.file_list.append([dir_n, fileN, extN])
         else:
             self.msg_end += "File %s has not a good extension (%s)\n" % (file_name_wo_dir, str(self.auth_ext))
             self.logNB.warning(
-                "In  addFile file %s has not a good extension (%s)" % (file_name_wo_dir, str(self.auth_ext)))
+                "In  _addFile file %s has not a good extension (%s)" % (file_name_wo_dir, str(self.auth_ext)))
 
     def getFileList(self):
+        """ Create file_list with good path and name.
+        It works recursively and use _addFile function
+        """
         self.logNB.debug("In  getFileList, arguments=%s" % str(self.arguments))
         if len(self.arguments) != 0:
             for file_or_dir in self.arguments:
@@ -62,15 +92,17 @@ class NemoBase:
                     self.logNB.debug("In  getFileList, dir=%s" % str(file_or_dir))
                     for dir_path, dir_names, file_names in os.walk(file_or_dir):
                         for file_name in file_names:
-                            self.addFile(os.path.join(dir_path, file_name))
+                            self._addFile(os.path.join(dir_path, file_name))
 
                 elif os.path.isfile(file_or_dir):
                     self.logNB.debug("In  getFileList file=" + str(file_or_dir))
-                    self.addFile(file_or_dir)
+                    self._addFile(file_or_dir)
 
         self.logNB.info("file_list=%s" % str(self.file_list))
 
     def compute(self):
+        """Execute the command and examine the result.
+        """
         old_dir = os.getcwd()
 
         for (dir_name, file_name, file_ext) in self.file_list:
@@ -79,7 +111,7 @@ class NemoBase:
 
             cmd = self.command.split(" ")
             cmd.append(file_name + file_ext)
-            if self.command_param :
+            if self.command_param:
                 cmd.append(file_name + self.res_ext)
             self.logNB.info("Run command %s" % str(cmd))
             process = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
@@ -94,6 +126,8 @@ class NemoBase:
                 os.chdir(old_dir)
 
     def analyze(self):
+        """Print a message dialog with the result of the command.
+        """
         if len(self.file_list) == 0:
             MessageDialogEnd(error=True, log_file=self.log_name, title=self.prog_name, msg1="ERROR",
                              msg2=self.msg_not_found)
@@ -108,7 +142,10 @@ class NemoBase:
             MessageDialogEnd(error=False, log_file=self.log_name, title=self.prog_name, msg1="OK",
                              msg2=self.msg_end)
 
-    def runJob(self):
+    def runOneCommand(self):
+        """ Get the file list, if it's not null, execute the command on each file,
+        and analyze the result.
+        """
         self.getFileList()
         if len(self.file_list) != 0:
             self.compute()
