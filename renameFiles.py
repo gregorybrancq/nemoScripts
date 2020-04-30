@@ -1,109 +1,43 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-'''
-rename files in a same directory
-'''
+"""
+Rename files in the same directory
+"""
 
+# Import
+import logging
 
-
-## Import
-import sys
-import os
-import re
-from datetime import datetime
-import subprocess
-from optparse import OptionParser
-
-## common
-from python_common import *
-HEADER = "Rename_File"
-
-## directory
-logDir   = getLogDir()
-
-###############################################
+from common import createLog, parsingLine
+from nemoBase import NemoBase
 
 
+class RenameFiles(NemoBase):
+    def __init__(self, root_log, args):
+        root_log_name = '.'.join([root_log, self.__class__.__name__])
+        self.logCB = logging.getLogger(root_log_name)
+        super().__init__(root_log, root_log_name, args)
 
-###############################################
-###############################################
-##              Line Parsing                 ##
-###############################################
-###############################################
-
-parsedArgs = {}
-parser = OptionParser()
-
-
-parser.add_option(
-    "-d",
-    "--debug",
-    action  = "store_true",
-    dest    = "debug",
-    default = False,
-    help    = "Display all debug information"
-    )
-
-(parsedArgs , args) = parser.parse_args()
-
-###############################################
+    def run(self):
+        command = "pyrenamer"
+        command_param = False
+        delete_file = False
+        auth_ext = []
+        res_ext = ""
+        msg_not_found = "No file has been found."
+        self.setConfig(command, command_param, delete_file, auth_ext, res_ext, msg_not_found)
+        self.runProgram(on_dir=True)
 
 
-
-###############################################
-## Global variables
-###############################################
-
-t = str(datetime.today().isoformat("_"))
-logFile = os.path.join(logDir, HEADER + "_" + t + ".log")
-
-###############################################
-
-
-
-
-
-###############################################
-###############################################
-###############################################
-##                 MAIN                      ##
-###############################################
-###############################################
-###############################################
-
-
-def main() :
-    global log
-    log.info(HEADER, "In  main")
-
-    log.info(HEADER, "In  main parsedArgs=" + str(parsedArgs))
-    log.info(HEADER, "In  main args=" + str(args))
-
-    for arg in args :
-        log.info(HEADER, "In  main arg=" + str(arg))
-        log.info(HEADER, "In  main cwd=" + str(os.getcwd()))
-        if (os.path.isdir(arg)) :
-            dirN = os.path.join(os.getcwd(), arg)
-        else :
-            dirN = os.getcwd()
-        break
-
-    ## Launch the pyrenamer program
-    cmdToLaunch='pyrenamer "' + str(dirN) + '"'
-    log.info(HEADER, "In  main cmdToLaunch=" + str(cmdToLaunch))
-    procPopen = subprocess.Popen(cmdToLaunch, shell=True, stderr=subprocess.STDOUT)
-    procPopen.wait()
-
-    log.info(HEADER, "Out main")
-
+def main():
+    # Create log class
+    root_log = 'renameFiles'
+    (parsedArgs, args) = parsingLine()
+    logger = createLog(root_log, parsedArgs)
+    logger.info("START")
+    RenameFiles(root_log, args).run()
+    logger.info("STOP")
 
 
 if __name__ == '__main__':
- 
-    ## Create log class
-    log = LOGC(logFile, HEADER, parsedArgs.debug)
-
     main()
-
-###############################################
-
