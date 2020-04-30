@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import sys
+import send2trash
 
 import logging
 
@@ -36,6 +37,7 @@ class NemoBase:
         self.arguments = arguments
         self.command = list()
         self.command_param = True
+        self.delete_file = False
         self.auth_ext = list()
         self.res_ext = str()
         self.msg_not_found = str()
@@ -43,11 +45,12 @@ class NemoBase:
         self.msg_end = ""
         self.error = False
 
-    def setConfig(self, command, command_param, auth_ext, res_ext, msg_not_found):
+    def setConfig(self, command, command_param, delete_file, auth_ext, res_ext, msg_not_found):
         """Set the configuration of the class parameters
 
         :param command: the command to execute
-        :param command_param: specify the output file
+        :param command_param: specify the output file (default False)
+        :param delete_file: True to delete the input file (default False)
         :param auth_ext: the authorized extension
         :param res_ext: the file extension result
         :param msg_not_found: if no file matches, it will indicate this message information
@@ -119,6 +122,8 @@ class NemoBase:
             if process.returncode != 0 or not os.path.isfile(file_name + self.res_ext):
                 self.error = True
                 self.msg_end += "In %s, cmd failed : \n  %s\n" % (os.getcwd(), str(cmd))
+                if self.delete_file :
+                    send2trash.send2trash(file_name + file_ext)
             else:
                 self.msg_end += "Converted : %s\n" % (os.path.join(os.getcwd(), file_name + self.res_ext))
 

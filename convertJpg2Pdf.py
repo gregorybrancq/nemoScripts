@@ -21,10 +21,11 @@ class ConvertJpg2Pdf(NemoBase):
     def run(self):
         command = "convert"
         command_param = True
+        delete_file = True
         auth_ext = [".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".TIF", ".gif", ".GIF", ".bmp", ".BMP"]
         res_ext = ".pdf"
         msg_not_found = "No image has been found."
-        self.setConfig(command, command_param, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_param, delete_file, auth_ext, res_ext, msg_not_found)
         self.runOneCommand()
 
 

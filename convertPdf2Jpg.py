@@ -21,10 +21,11 @@ class ConvertPdf2Jpg(NemoBase):
     def run(self):
         command = "convert -density 248x248"
         command_param = True
+        delete_file = True
         auth_ext = [".pdf", ".PDF"]
         res_ext = ".jpg"
         msg_not_found = "No image has been found."
-        self.setConfig(command, command_param, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_param, delete_file, auth_ext, res_ext, msg_not_found)
         self.runOneCommand()
 
 
