@@ -8,9 +8,9 @@ import os
 import re
 import subprocess
 import sys
-import send2trash
 
 import logging
+import send2trash
 
 sys.path.append('/home/greg/Greg/work/env/pythonCommon')
 from basic import getLogDir
@@ -49,7 +49,7 @@ class NemoBase:
         """Set the configuration of the class parameters
 
         :param command: the command to execute
-        :param command_param: specify the output file (default False)
+        :param command_param: specify the output file with extension to the command (default False)
         :param delete_file: True to delete the input file (default False)
         :param auth_ext: the authorized extension
         :param res_ext: the file extension result
@@ -122,7 +122,7 @@ class NemoBase:
             if process.returncode != 0 or not os.path.isfile(file_name + self.res_ext):
                 self.error = True
                 self.msg_end += "In %s, cmd failed : \n  %s\n" % (os.getcwd(), str(cmd))
-                if self.delete_file :
+                if self.delete_file:
                     send2trash.send2trash(file_name + file_ext)
             else:
                 self.msg_end += "Converted : %s\n" % (os.path.join(os.getcwd(), file_name + self.res_ext))
