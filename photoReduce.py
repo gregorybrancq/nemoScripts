@@ -42,7 +42,7 @@ class PhotoReduce(NemoBase):
         res_ext = ""
         msg_not_found = "No image has been found."
         self.setConfig(command, command_param, delete_file, auth_ext, res_ext, msg_not_found)
-        self.runOneCommand()
+        self.runCommand()
 
 
 def main():
