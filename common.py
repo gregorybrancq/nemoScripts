@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Create log process
+Common functions used for each file
 """
 import os
 import sys
@@ -31,7 +31,7 @@ def parsingLine():
 def createLog(log_name, parsed_args):
     if not os.path.isdir(getLogDir()):
         os.mkdir(getLogDir())
-    # create logger with 'spam_application'
+    # create logger
     logger = logging.getLogger(log_name)
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
@@ -52,7 +52,7 @@ def createLog(log_name, parsed_args):
         logger.addHandler(ch)
     return logger
 
-# 'applicat
+# command application
 # logger.debug('debug message')
 # logger.info('info message')
 # logger.warning('warn message')
