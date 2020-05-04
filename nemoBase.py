@@ -9,7 +9,6 @@ import os
 import re
 import subprocess
 import sys
-from shutil import copyfile
 
 import send2trash
 
@@ -68,27 +67,6 @@ class NemoBase:
         self.res_ext = res_ext
         self.msg_not_found = msg_not_found
 
-    def setConfigOnce(self, command, command_in_options, command_set_output, delete_file, auth_ext, res_ext,
-                      msg_not_found):
-        """Set the configuration of the class parameters
-
-        :param command: the command to execute
-        :param command_options: options to set to the command after the file input
-        :param command_set_output: specify the output file with extension to the command (default False)
-        :param delete_file: delete the input file (default False)
-        :param auth_ext: the authorized extension
-        :param res_ext: the file extension result
-        :param msg_not_found: if no file matches, it will indicate this message information
-        :return: updated attributes
-        """
-        self.command = command
-        self.command_options = command_options
-        self.command_set_output = command_set_output
-        self.delete_file = delete_file
-        self.auth_ext = auth_ext
-        self.res_ext = res_ext
-        self.msg_not_found = msg_not_found
-
     def _addFile(self, file_name):
         """Function to be used internally with getFileList
         it checks if the selected file corresponds to the authorization extension
@@ -128,6 +106,11 @@ class NemoBase:
 
         self.logNB.info("Out getFileList, file_list=%s" % str(self.file_list))
 
+    def replace(self, file_name):
+        """Function to replace the input file by output file
+        """
+        pass
+
     def compute(self):
         """Execute the command for each file and examine the result.
         """
@@ -151,6 +134,14 @@ class NemoBase:
                     # same extension, need to replace the input file with resulted file
                     self.temp_file = os.path.join("/tmp", file_name + self.res_ext)
                     cmd.append(self.temp_file)
+                    for com in cmd :
+                        # particular case for reducePdfWeight
+                        if re.search("output_file_to_replace", com) :
+                            cmd.remove(com)
+                            cmd.remove(self.temp_file)
+                            cmd.remove(file_name + file_ext)
+                            cmd.append(re.sub("output_file_to_replace", self.temp_file, com))
+                            cmd.append(file_name + file_ext)
                 else:
                     cmd.append(file_name + self.res_ext)
             self.logNB.info("Run command %s" % str(cmd))
@@ -165,35 +156,23 @@ class NemoBase:
                     self.msg_end += "In %s,\ncmd failed : \n  %s\n" % (os.getcwd(), str(cmd))
             else:
                 if self.temp_file:
-                    # copy result file
-                    copyfile(self.temp_file, file_name + self.res_ext)
+                    self.replace(file_name + file_ext)
 
-                if self.res_ext != "":
-                    self.msg_end += "Executed : %s\n" % (os.path.join(os.getcwd(), file_name + self.res_ext))
-                else:
-                    self.msg_end += "Executed : %s\n" % (os.path.join(os.getcwd(), file_name + file_ext))
+                else :
+                    if self.res_ext != "":
+                        self.msg_end += "Executed : %s\n" % (os.path.join(os.getcwd(), file_name + self.res_ext))
+                    else:
+                        self.msg_end += "Executed : %s\n" % (os.path.join(os.getcwd(), file_name + file_ext))
 
-                # Delete file
-                if self.delete_file:
-                    send2trash.send2trash(file_name + file_ext)
-                for file_to_delete in ("doc_data.txt", self.temp_file):
-                    if os.path.isfile(file_to_delete):
-                        os.remove(file_to_delete)
+                    # Delete file
+                    if self.delete_file:
+                        send2trash.send2trash(file_name + file_ext)
+                    for file_to_delete in ("doc_data.txt", self.temp_file):
+                        if os.path.isfile(file_to_delete):
+                            os.remove(file_to_delete)
 
             if dir_name != "":
                 os.chdir(old_dir)
-
-    def computeOnce(self):
-        """Execute the program for the first argument.
-        """
-        (dir_name, file_name, file_ext) = self.file_list[0]
-        cmd = self.command.split(" ")
-        if dir_name != "":
-            os.chdir(dir_name)
-        cmd.append(os.getcwd())
-        self.logNB.info("Run command : %s" % str(cmd))
-        process = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
-        process.wait()
 
     def runCommand(self):
         """ Get the file list, if it's not null, execute the command on each file,
@@ -203,13 +182,6 @@ class NemoBase:
         if len(self.file_list) != 0:
             self.compute()
         self.analyze()
-
-    def runCommandOnce(self):
-        """ Get the file list, execute the program only for the first argument.
-        """
-        self.getFileList()
-        if len(self.file_list) != 0:
-            self.computeOnce()
 
     def analyze(self):
         """Print a message dialog with the result of the command.

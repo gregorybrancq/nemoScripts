@@ -7,6 +7,7 @@ Convert bmp to jpg
 
 # Import
 import logging
+from shutil import copyfile
 
 from common import createLog, parsingLine
 from nemoBase import NemoBase
@@ -17,6 +18,10 @@ class DecryptPdf(NemoBase):
         root_log_name = '.'.join([root_log, self.__class__.__name__])
         self.logCB = logging.getLogger(root_log_name)
         super().__init__(root_log, root_log_name, args)
+
+    def replace(self, file_name):
+        self.logCB.debug("Copy result file")
+        copyfile(self.temp_file, file_name + self.res_ext)
 
     def run(self):
         command = "qpdf --decrypt"

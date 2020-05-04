@@ -1,171 +1,71 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'''
+"""
 Reduce the weight of the pdf files
-'''
+"""
 
-
-
-## Import
-import sys
+# Import
+import logging
 import os
 import shutil
-from datetime import datetime
-import subprocess
-from optparse import OptionParser
+import sys
 
-## common
-from python_common import *
-HEADER = "Reduce_Pdf_Weight"
-
-## directory
-logDir   = getLogDir()
-
-###############################################
+sys.path.append('/home/greg/Greg/work/env/pythonCommon')
+from basic import humanSize
+from common import createLog, parsingLine
+from nemoBase import NemoBase
 
 
+class ReducePdfWeight(NemoBase):
+    def __init__(self, root_log, args):
+        root_log_name = '.'.join([root_log, self.__class__.__name__])
+        self.logCB = logging.getLogger(root_log_name)
+        super().__init__(root_log, root_log_name, args)
 
-###############################################
-###############################################
-##              Line Parsing                 ##
-###############################################
-###############################################
+    def replace(self, file_name):
+        # is it worth to move the result?
+        original_size = os.path.getsize(file_name)
+        reduced_size = os.path.getsize(self.temp_file)
+        self.logCB.debug("Original file (%s) = %s\tReduced file (%s) = %s" %
+                         (file_name, humanSize(original_size),
+                          self.temp_file, humanSize(reduced_size)))
 
-parsedArgs = {}
-parser = OptionParser()
-
-
-parser.add_option(
-    "-d",
-    "--debug",
-    action  = "store_true",
-    dest    = "debug",
-    default = False,
-    help    = "Display all debug information"
-    )
-
-(parsedArgs , args) = parser.parse_args()
-
-###############################################
-
-
-
-###############################################
-## Global variables
-###############################################
-
-t = str(datetime.today().isoformat("_"))
-logFile = os.path.join(logDir, HEADER + "_" + t + ".log")
-errC = 0
-
-###############################################
-
-
-
-
-
-###############################################
-###############################################
-##                FUNCTIONS                  ##
-###############################################
-###############################################
-
-def reduceWeight(fileList) :
-    global log
-    global errC
-    log.info(HEADER, "In  reduceWeight")
-
-    oldDir = os.getcwd()
-
-    for (fileD, fileN, fileE) in fileList :
-        log.info(HEADER, "In  reduceWeight directory=" + str(fileD) + ", file=" + fileN + fileE)
-
-        if (fileD != "") :
-            os.chdir(fileD)
-
-        cmd='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile="' + fileN + ' reduced' + fileE + '" "' + fileN + fileE + '"'
-        procPopen = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT)
-        procPopen.wait()
-        if (procPopen.returncode != 0) :
-            errC += 1
-            log.error(HEADER, "In  reduceWeight file: issue with " + str(os.path.join(fileD, fileN + fileE)))
+        if original_size - reduced_size > 0 :
+            self.msg_end += "Reduced file : %s\n" % (os.path.join(os.getcwd(), file_name))
+            # move file
+            if os.path.exists(file_name):
+                os.remove(file_name)
+            shutil.move(self.temp_file, file_name)
         else :
-            # is it worth to move the result?
-            originalSize = os.path.getsize(fileN + fileE)
-            reducedSize = os.path.getsize(fileN + ' reduced' + fileE)
+            self.msg_end += "Keep original file : %s\n" % (os.path.join(os.getcwd(), file_name))
+            self.logCB.debug("Delete reduced file")
+            # remove result file
+            if os.path.exists(self.temp_file):
+                os.remove(self.temp_file)
 
-            if (originalSize - reducedSize > 0) :
-                # move file
-                if os.path.exists(fileN + fileE):
-                    os.remove(fileN + fileE)
-                shutil.move(fileN + ' reduced' + fileE, fileN + fileE)
-                log.info(HEADER, "In  reduceWeight copied file. Gain = " + str(humanSize(originalSize - reducedSize)) + ", original = " + str(humanSize(originalSize)) + ", reduced = " + str(humanSize(reducedSize)))
-            else :
-                # remove result file
-                if os.path.exists(fileN + ' reduced' + fileE):
-                    os.remove(fileN + ' reduced' + fileE)
-                log.info(HEADER, "In  reduceWeight removed file. Original = " + str(humanSize(originalSize)) + ", reduced = " + str(humanSize(reducedSize)))
-
-        if (fileD != "") :
-            os.chdir(oldDir)
-
-    log.info(HEADER, "Out reduceWeight")
-
-###############################################
+    def run(self):
+        command = "gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=output_file_to_replace"
+        command_options = ""
+        command_set_output = True
+        delete_file = False
+        auth_ext = [".pdf", ".PDF"]
+        res_ext = ".pdf"
+        msg_not_found = "No pdf file has been found."
+        self.setConfig(command, command_options, command_set_output, delete_file,
+                       auth_ext, res_ext, msg_not_found)
+        self.runCommand()
 
 
-
-
-
-
-###############################################
-###############################################
-###############################################
-##                 MAIN                      ##
-###############################################
-###############################################
-###############################################
-
-
-def main() :
-    global log
-    warnC = 0
-    log.info(HEADER, "In  main")
-
-    fileList = list()
-
-    log.info(HEADER, "In  main parsedArgs=" + str(parsedArgs))
-    log.info(HEADER, "In  main args=" + str(args))
-
-    ## Create list of files
-    extAuth=[".pdf", ".PDF"]
-    (fileList, warnC) = listFromArgs(log, HEADER, args, extAuth)
-
-    ## Verify if there is at least one photo to reducePdfWeight
-    if (len(fileList) == 0) :
-        MessageDialog(type_='error', title="Reduce PDF weight", message="\nNo pdf file has been found\n").run()
-    else :
-        log.info(HEADER, "In  main reduce pdf weight = " + str(len(fileList)))
-
-    ## Convert them
-    reduceWeight(fileList)
-
-    ## End dialog
-    MessageDialogEnd(warnC, errC, logFile, "Reduce PDF weight", "\nJob fini : " + str(len(fileList)) + " pdf reduced.")
-    
-    log.info(HEADER, "Out main")
-
-###############################################
-
-
+def main():
+    # Create log class
+    root_log = 'reducePdfWeight'
+    (parsedArgs, args) = parsingLine()
+    logger = createLog(root_log, parsedArgs)
+    logger.info("START")
+    ReducePdfWeight(root_log, args).run()
+    logger.info("STOP")
 
 
 if __name__ == '__main__':
- 
-    ## Create log class
-    log = LOGC(logFile, HEADER, parsedArgs.debug)
-
     main()
-
-

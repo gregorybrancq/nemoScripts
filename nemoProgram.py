@@ -2,22 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-Basic functions for file programs as Nemo or Nautilus.
+Launch a program for selected directory.
 """
 import logging
 import os
-import re
 import subprocess
-import sys
-from shutil import copyfile
-
-import send2trash
 
 from nemoBase import NemoBase
-
-sys.path.append('/home/greg/Greg/work/env/pythonCommon')
-from basic import getLogDir
-from message import MessageDialogEnd
 
 
 class NemoProgram(NemoBase):
