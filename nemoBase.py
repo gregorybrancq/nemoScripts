@@ -68,6 +68,27 @@ class NemoBase:
         self.res_ext = res_ext
         self.msg_not_found = msg_not_found
 
+    def setConfigOnce(self, command, command_in_options, command_set_output, delete_file, auth_ext, res_ext,
+                      msg_not_found):
+        """Set the configuration of the class parameters
+
+        :param command: the command to execute
+        :param command_options: options to set to the command after the file input
+        :param command_set_output: specify the output file with extension to the command (default False)
+        :param delete_file: delete the input file (default False)
+        :param auth_ext: the authorized extension
+        :param res_ext: the file extension result
+        :param msg_not_found: if no file matches, it will indicate this message information
+        :return: updated attributes
+        """
+        self.command = command
+        self.command_options = command_options
+        self.command_set_output = command_set_output
+        self.delete_file = delete_file
+        self.auth_ext = auth_ext
+        self.res_ext = res_ext
+        self.msg_not_found = msg_not_found
+
     def _addFile(self, file_name):
         """Function to be used internally with getFileList
         it checks if the selected file corresponds to the authorization extension
@@ -174,6 +195,22 @@ class NemoBase:
         process = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
         process.wait()
 
+    def runCommand(self):
+        """ Get the file list, if it's not null, execute the command on each file,
+        and analyze the result.
+        """
+        self.getFileList()
+        if len(self.file_list) != 0:
+            self.compute()
+        self.analyze()
+
+    def runCommandOnce(self):
+        """ Get the file list, execute the program only for the first argument.
+        """
+        self.getFileList()
+        if len(self.file_list) != 0:
+            self.computeOnce()
+
     def analyze(self):
         """Print a message dialog with the result of the command.
         """
@@ -190,19 +227,3 @@ class NemoBase:
         else:
             MessageDialogEnd(error=False, log_file=self.log_name, title=self.prog_name, msg1="OK",
                              msg2=self.msg_end)
-
-    def runCommand(self):
-        """ Get the file list, if it's not null, execute the command on each file,
-        and analyze the result.
-        """
-        self.getFileList()
-        if len(self.file_list) != 0:
-            self.compute()
-        self.analyze()
-
-    def runProgram(self):
-        """ Get the file list, execute the program only for the first argument.
-        """
-        self.getFileList()
-        if len(self.file_list) != 0:
-            self.computeOnce()

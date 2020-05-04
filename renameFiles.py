@@ -9,10 +9,10 @@ Rename files in the same directory
 import logging
 
 from common import createLog, parsingLine
-from nemoBase import NemoBase
+from nemoProgram import NemoProgram
 
 
-class RenameFiles(NemoBase):
+class RenameFiles(NemoProgram):
     def __init__(self, root_log, args):
         root_log_name = '.'.join([root_log, self.__class__.__name__])
         self.logCB = logging.getLogger(root_log_name)
@@ -20,14 +20,8 @@ class RenameFiles(NemoBase):
 
     def run(self):
         command = "pyrenamer"
-        command_options = ""
-        command_set_output = False
-        delete_file = False
-        auth_ext = []
-        res_ext = ""
-        msg_not_found = "No file has been found."
-        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
-        self.runProgram()
+        self.setConfig(command)
+        self.runCommand()
 
 
 def main():
