@@ -1,160 +1,62 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'''
-Split PDF files
-'''
+"""
+Convert 1 pdf to X pdf
+"""
 
-
-
-## Import
-import sys
+# Import
+import logging
 import os
-from datetime import datetime
 import subprocess
-from optparse import OptionParser
 
-## common
-from python_common import *
-HEADER = "1PdfTOXPdf"
+import send2trash
 
-## directory
-logDir   = getLogDir()
-
-###############################################
+from common import createLog, parsingLine
+from nemoBase import NemoBase
 
 
+class SplitPdf(NemoBase):
+    def __init__(self, root_log, args):
+        root_log_name = '.'.join([root_log, self.__class__.__name__])
+        self.logCB = logging.getLogger(root_log_name)
+        super().__init__(root_log, root_log_name, args)
 
-###############################################
-###############################################
-##              Line Parsing                 ##
-###############################################
-###############################################
-
-parsedArgs = {}
-parser = OptionParser()
-
-
-parser.add_option(
-    "-d",
-    "--debug",
-    action  = "store_true",
-    dest    = "debug",
-    default = False,
-    help    = "Display all debug information"
-    )
-
-(parsedArgs , args) = parser.parse_args()
-
-###############################################
+    def run(self):
+        command = "pdftk"
+        command_options = "burst output"
+        command_set_output = True
+        delete_file = False
+        auth_ext = [".pdf", ".PDF"]
+        res_ext = "_%04d.pdf"
+        msg_not_found = "No pdf file has been found."
+        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
+        self.runCommand()
 
 
-
-###############################################
-## Global variables
-###############################################
-
-t = str(datetime.today().isoformat("_"))
-logFile = os.path.join(logDir, HEADER + "_" + t + ".log")
-errC = 0
-
-###############################################
-
-
-
-
-
-###############################################
-###############################################
-##                FUNCTIONS                  ##
-###############################################
-###############################################
-
-def splitFile(fileList) :
-    global log
-    global errC
-    log.info(HEADER, "In  splitFile")
-
-    fileListStr = ""
-    for (fileD, fileN, fileE) in fileList :
-        if (fileD != "") :
-            fileListStr += fileD + "/"
-
-        fileListStr += '"' + fileN + fileE + '" '
-
-    findName = False
-    outputName = "concat.pdf"
-    i = 0
-    while not findName :
-        if not os.path.exists(outputName):
-            findName = True
-        else :
-            outputName = "concat_" + str(i) + ".pdf"
-            i += 1
-
-    cmd='pdftk ' + fileListStr + ' burst'
-    log.info(HEADER, "In  splitFile cmd=" + str(cmd))
-    procPopen = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT)
-    procPopen.wait()
-    if (procPopen.returncode != 0) :
-        errC += 1
-        log.error(HEADER, "In  splitFile file: issue with " + str(cmd))
-
-    log.info(HEADER, "Out splitFile")
-
-###############################################
-
-
-
-
-
-
-###############################################
-###############################################
-###############################################
-##                 MAIN                      ##
-###############################################
-###############################################
-###############################################
-
-
-def main() :
-    global log
-    warnC = 0
-    log.info(HEADER, "In  main")
-
-    fileList = list()
-
-    log.info(HEADER, "In  main parsedArgs=" + str(parsedArgs))
-    log.info(HEADER, "In  main args=" + str(args))
-
-    ## Create list of files
-    extAuth=[".pdf", ".PDF"]
-    (fileList, warnC) = listFromArgs(log, HEADER, args, extAuth)
-
-    ## Verify if there is at least one pdf file
-    if (len(fileList) == 0) :
-        log.exit("1", "No pdf file found\n")
-
-    ## Convert them
-    log.dbg("fileList="+str(fileList))
-    splitFile(fileList)
-
-    ## End dialog
-    MessageDialogEnd(warnC, errC, logFile, "Split PDF files", "\nJob fini.")
-    
-    log.info(HEADER, "Out main")
-
-###############################################
-
-
+def main():
+    # Create log class
+    root_log = 'convert1Pdf2XPdf'
+    (parsedArgs, args) = parsingLine()
+    logger = createLog(root_log, parsedArgs)
+    logger.info("START")
+    SplitPdf(root_log, args).run()
+    logger.info("STOP")
 
 
 if __name__ == '__main__':
- 
-    ## Create log class
-    log = LOGC(logFile, HEADER, parsedArgs.debug)
-
     main()
 
 
+
+#    findName = False
+#    outputName = "concat.pdf"
+#    i = 0
+#    while not findName :
+#        if not os.path.exists(outputName):
+#            findName = True
+#        else :
+#            outputName = "concat_" + str(i) + ".pdf"
+#            i += 1
+#
+#    cmd='pdftk ' + fileListStr + ' burst'

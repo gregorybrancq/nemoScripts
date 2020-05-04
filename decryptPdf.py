@@ -1,170 +1,44 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'''
-Decrypt pdf file
-'''
+"""
+Convert bmp to jpg
+"""
+
+# Import
+import logging
+
+from common import createLog, parsingLine
+from nemoBase import NemoBase
 
 
+class DecryptPdf(NemoBase):
+    def __init__(self, root_log, args):
+        root_log_name = '.'.join([root_log, self.__class__.__name__])
+        self.logCB = logging.getLogger(root_log_name)
+        super().__init__(root_log, root_log_name, args)
 
-## Import
-import sys
-import os
-from datetime import datetime
-import subprocess
-from optparse import OptionParser
-from shutil import copyfile
-
-## common
-from python_common import *
-HEADER = "DecryptPDF"
-
-## directory
-logDir   = getLogDir()
-
-###############################################
-
+    def run(self):
+        command = "qpdf --decrypt"
+        command_options = ""
+        command_set_output = True
+        delete_file = False
+        auth_ext = [".pdf", ".PDF"]
+        res_ext = ".pdf"
+        msg_not_found = "No pdf file has been found."
+        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
+        self.runCommand()
 
 
-###############################################
-###############################################
-##              Line Parsing                 ##
-###############################################
-###############################################
-
-parsedArgs = {}
-parser = OptionParser()
-
-
-parser.add_option(
-    "-d",
-    "--debug",
-    action  = "store_true",
-    dest    = "debug",
-    default = False,
-    help    = "Display all debug information"
-    )
-
-(parsedArgs , args) = parser.parse_args()
-
-###############################################
-
-
-
-###############################################
-## Global variables
-###############################################
-
-t = str(datetime.today().isoformat("_"))
-logFile = os.path.join(logDir, HEADER + "_" + t + ".log")
-errC = 0
-
-###############################################
-
-
-
-
-
-###############################################
-###############################################
-##                FUNCTIONS                  ##
-###############################################
-###############################################
-
-def decryptFile(fileList) :
-    global log
-    global errC
-    log.info(HEADER, "In  decryptFile")
-
-    for (fileD, fileN, fileE) in fileList :
-
-        cmd='qpdf --decrypt "' + os.path.join(fileD, fileN + fileE) + '" "' + os.path.join(fileD, fileN + fileE) + '_tmp"'
-        print("cmd=" + cmd)
-        log.info(HEADER, "In  decryptFile cmd=" + str(cmd))
-        procPopen = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT)
-        procPopen.wait()
-        if (procPopen.returncode != 0) :
-            errC += 1
-            log.error(HEADER, "In  decryptFile file: issue with " + str(cmd))
-        else :
-            # copy result file
-            copyfile(os.path.join(fileD, fileN + fileE + '_tmp'), os.path.join(fileD, fileN + fileE))
-            # delete temporary file
-            os.remove(os.path.join(fileD, fileN + fileE + '_tmp'))
-
-    log.info(HEADER, "Out decryptFile")
-
-
-
-def cleanFiles(fileList, firstN, outputN) :
-    global log
-    global errC
-    log.info(HEADER, "In  cleanFiles")
-
-    for (fileD, fileN, fileE) in fileList :
-        if os.path.exists(os.path.join(fileD, fileN + fileE)):
-            os.remove(os.path.join(fileD, fileN + fileE))
-
-    if os.path.exists(outputN) :
-        os.rename(outputN, firstN + ".pdf")
-
-    log.info(HEADER, "Out cleanFiles")
-
-###############################################
-
-
-
-
-
-
-###############################################
-###############################################
-###############################################
-##                 MAIN                      ##
-###############################################
-###############################################
-###############################################
-
-
-def main() :
-    global log
-    warnC = 0
-    firstN = str()
-    outputN = str()
-    log.info(HEADER, "In  main")
-
-    fileList = list()
-
-    log.info(HEADER, "In  main parsedArgs=" + str(parsedArgs))
-    log.info(HEADER, "In  main args=" + str(args))
-
-    ## Create list of files
-    extAuth=[".pdf", ".PDF"]
-    (fileList, warnC) = listFromArgs(log, HEADER, args, extAuth)
-
-    ## Verify if there is at least one file to convert
-    if (len(fileList) == 0) :
-        log.exit("Decrypt PDF file", "No PDF file has been found\n")
-
-    ## Decrypt them
-    log.dbg("fileListConvert="+str(fileList))
-    decryptFile(fileList)
-
-    ## End dialog
-    MessageDialogEnd(warnC, errC, logFile, "Decrypt pdf file", "\nJob fini.")
-    
-    log.info(HEADER, "Out main")
-
-###############################################
-
-
+def main():
+    # Create log class
+    root_log = 'decryptPdf'
+    (parsedArgs, args) = parsingLine()
+    logger = createLog(root_log, parsedArgs)
+    logger.info("START")
+    DecryptPdf(root_log, args).run()
+    logger.info("STOP")
 
 
 if __name__ == '__main__':
- 
-    ## Create log class
-    log = LOGC(logFile, HEADER, parsedArgs.debug)
-
     main()
-
-

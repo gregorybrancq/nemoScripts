@@ -20,12 +20,13 @@ class RenameFiles(NemoBase):
 
     def run(self):
         command = "pyrenamer"
-        command_param = False
+        command_options = ""
+        command_set_output = False
         delete_file = False
         auth_ext = []
         res_ext = ""
         msg_not_found = "No file has been found."
-        self.setConfig(command, command_param, delete_file, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
         self.runProgram()
 
 

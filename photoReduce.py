@@ -36,12 +36,13 @@ class PhotoReduce(NemoBase):
     def run(self):
         resize_percent = self.askPercent()
         command='mogrify -resize ' + str(resize_percent) + '%'
-        command_param = False
+        command_options = ""
+        command_set_output = False
         delete_file = False
         auth_ext = [".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".TIF", ".gif", ".GIF", ".bmp", ".BMP"]
         res_ext = ""
         msg_not_found = "No image has been found."
-        self.setConfig(command, command_param, delete_file, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
         self.runCommand()
 
 

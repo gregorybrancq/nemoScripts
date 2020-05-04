@@ -20,12 +20,13 @@ class ConvertBmp2Jpg(NemoBase):
 
     def run(self):
         command = "convert"
-        command_param = True
+        command_options = ""
+        command_set_output = True
         delete_file = True
         auth_ext = [".tif", ".TIF", ".gif", ".GIF", ".bmp", ".BMP"]
         res_ext = ".jpg"
         msg_not_found = "No image has been found."
-        self.setConfig(command, command_param, delete_file, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
         self.runCommand()
 
 

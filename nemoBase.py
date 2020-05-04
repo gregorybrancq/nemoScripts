@@ -4,12 +4,13 @@
 """
 Basic functions for file programs as Nemo or Nautilus.
 """
+import logging
 import os
 import re
 import subprocess
 import sys
+from shutil import copyfile
 
-import logging
 import send2trash
 
 sys.path.append('/home/greg/Greg/work/env/pythonCommon')
@@ -36,7 +37,8 @@ class NemoBase:
         self.log_name = os.path.join(getLogDir(), log_name) + ".log"
         self.arguments = arguments
         self.command = str()
-        self.command_param = True
+        self.command_options = str()
+        self.command_set_output = True
         self.delete_file = False
         self.auth_ext = list()
         self.res_ext = str()
@@ -44,20 +46,23 @@ class NemoBase:
         self.file_list = list()
         self.msg_end = ""
         self.error = False
+        self.temp_file = ""  # temporary file
 
-    def setConfig(self, command, command_param, delete_file, auth_ext, res_ext, msg_not_found):
+    def setConfig(self, command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found):
         """Set the configuration of the class parameters
 
         :param command: the command to execute
-        :param command_param: specify the output file with extension to the command (default False)
-        :param delete_file: True to delete the input file (default False)
+        :param command_options: options to set to the command after the file input
+        :param command_set_output: specify the output file with extension to the command (default False)
+        :param delete_file: delete the input file (default False)
         :param auth_ext: the authorized extension
         :param res_ext: the file extension result
         :param msg_not_found: if no file matches, it will indicate this message information
         :return: updated attributes
         """
         self.command = command
-        self.command_param = command_param
+        self.command_options = command_options
+        self.command_set_output = command_set_output
         self.delete_file = delete_file
         self.auth_ext = auth_ext
         self.res_ext = res_ext
@@ -111,25 +116,48 @@ class NemoBase:
             if dir_name != "":
                 os.chdir(dir_name)
 
+            # Construct the command
             cmd = self.command.split(" ")
+            # input file name
             cmd.append(file_name + file_ext)
-            if self.command_param:
-                cmd.append(file_name + self.res_ext)
+            # options
+            if self.command_options:
+                opts = self.command_options.split(" ")
+                cmd += opts
+            # output
+            if self.command_set_output:
+                if file_ext == self.res_ext:
+                    # same extension, need to replace the input file with resulted file
+                    self.temp_file = os.path.join("/tmp", file_name + self.res_ext)
+                    cmd.append(self.temp_file)
+                else:
+                    cmd.append(file_name + self.res_ext)
             self.logNB.info("Run command %s" % str(cmd))
+
+            # Execute the command
             process = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
             process.wait()
             if process.returncode != 0:
                 # be sure that result file is not well generated (if expected)
                 if self.res_ext != "" and not os.path.isfile(file_name + self.res_ext):
                     self.error = True
-                    self.msg_end += "In %s, cmd failed : \n  %s\n" % (os.getcwd(), str(cmd))
+                    self.msg_end += "In %s,\ncmd failed : \n  %s\n" % (os.getcwd(), str(cmd))
             else:
+                if self.temp_file:
+                    # copy result file
+                    copyfile(self.temp_file, file_name + self.res_ext)
+
                 if self.res_ext != "":
                     self.msg_end += "Executed : %s\n" % (os.path.join(os.getcwd(), file_name + self.res_ext))
                 else:
                     self.msg_end += "Executed : %s\n" % (os.path.join(os.getcwd(), file_name + file_ext))
+
+                # Delete file
                 if self.delete_file:
                     send2trash.send2trash(file_name + file_ext)
+                for file_to_delete in ("doc_data.txt", self.temp_file):
+                    if os.path.isfile(file_to_delete):
+                        os.remove(file_to_delete)
 
             if dir_name != "":
                 os.chdir(old_dir)
@@ -173,7 +201,7 @@ class NemoBase:
         self.analyze()
 
     def runProgram(self):
-        """ Get the file list, execute the program with the first file in argument.
+        """ Get the file list, execute the program only for the first argument.
         """
         self.getFileList()
         if len(self.file_list) != 0:
