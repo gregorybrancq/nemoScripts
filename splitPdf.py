@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Convert 1 pdf to X pdf
+Split 1 pdf to X pdf
 """
 
 # Import
@@ -36,7 +36,7 @@ class SplitPdf(NemoBase):
 
 def main():
     # Create log class
-    root_log = 'convert1Pdf2XPdf'
+    root_log = 'splitPdf'
     (parsedArgs, args) = parsingLine()
     logger = createLog(root_log, parsedArgs)
     logger.info("START")
@@ -46,17 +46,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-#    findName = False
-#    outputName = "concat.pdf"
-#    i = 0
-#    while not findName :
-#        if not os.path.exists(outputName):
-#            findName = True
-#        else :
-#            outputName = "concat_" + str(i) + ".pdf"
-#            i += 1
-#
-#    cmd='pdftk ' + fileListStr + ' burst'
