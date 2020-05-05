@@ -42,7 +42,8 @@ class NemoBase:
         self.auth_ext = list()
         self.res_ext = str()
         self.msg_not_found = str()
-        self.file_list = list()
+        self.file_list_in = list()
+        self.file_list_out = list()
         self.msg_end = ""
         self.error = False
         self.temp_file = ""  # temporary file
@@ -83,7 +84,7 @@ class NemoBase:
         (fileN, extN) = os.path.splitext(file_name_wo_dir)
         if len(self.auth_ext) == 0 or self.auth_ext.__contains__(extN):
             self.logNB.debug("In  _addFile dir_n=" + str(dir_n) + ", fileN=" + str(fileN) + ", extN=" + str(extN))
-            self.file_list.append([dir_n, fileN, extN])
+            self.file_list_in.append([dir_n, fileN, extN])
         else:
             self.msg_end += "File %s has not a good extension (%s)\n" % (file_name_wo_dir, str(self.auth_ext))
             self.logNB.warning(
@@ -104,19 +105,31 @@ class NemoBase:
                 elif os.path.isfile(file_or_dir):
                     self._addFile(file_or_dir)
 
-        self.logNB.info("Out getFileList, file_list=%s" % str(self.file_list))
+        self.logNB.info("Out getFileList, file_list=%s" % str(self.file_list_in))
+
+    def getOutFileList(self):
+        """ Return the created file list
+        """
+        return self.file_list_out
 
     def replace(self, file_name):
         """Function to replace the input file by output file
         """
         pass
 
+    def delete(self):
+        """Delete files
+        """
+        if self.delete_file:
+            for (dir_name, file_name, file_ext) in self.file_list_in:
+                send2trash.send2trash(os.path.join(dir_name, file_name + file_ext))
+
     def compute(self):
         """Execute the command for each file and examine the result.
         """
         old_dir = os.getcwd()
 
-        for (dir_name, file_name, file_ext) in self.file_list:
+        for (dir_name, file_name, file_ext) in self.file_list_in:
             if dir_name != "":
                 os.chdir(dir_name)
 
@@ -144,6 +157,7 @@ class NemoBase:
                             cmd.append(file_name + file_ext)
                 else:
                     cmd.append(file_name + self.res_ext)
+                    self.file_list_out.append(os.path.join(os.getcwd(),file_name + self.res_ext))
             self.logNB.info("Run command %s" % str(cmd))
 
             # Execute the command
@@ -164,29 +178,27 @@ class NemoBase:
                     else:
                         self.msg_end += "Executed : %s\n" % (os.path.join(os.getcwd(), file_name + file_ext))
 
-                    # Delete file
-                    if self.delete_file:
-                        send2trash.send2trash(file_name + file_ext)
-                    for file_to_delete in ("doc_data.txt", self.temp_file):
-                        if os.path.isfile(file_to_delete):
-                            os.remove(file_to_delete)
+            # Search for generated files to delete
+            for file_to_delete in ("doc_data.txt", self.temp_file):
+                if os.path.isfile(file_to_delete):
+                    os.remove(file_to_delete)
 
             if dir_name != "":
                 os.chdir(old_dir)
 
-    def runCommand(self):
+    def runCommand(self, no_windows=False):
         """ Get the file list, if it's not null, execute the command on each file,
         and analyze the result.
         """
         self.getFileList()
-        if len(self.file_list) != 0:
+        if len(self.file_list_in) != 0:
             self.compute()
-        self.analyze()
+        self.analyze(no_windows)
 
-    def analyze(self):
+    def analyze(self, no_windows=False):
         """Print a message dialog with the result of the command.
         """
-        if len(self.file_list) == 0:
+        if len(self.file_list_in) == 0:
             MessageDialogEnd(error=True, log_file=self.log_name, title=self.prog_name, msg1="ERROR",
                              msg2=self.msg_not_found)
             self.logNB.error(self.msg_not_found)
@@ -197,5 +209,7 @@ class NemoBase:
             self.logNB.error(self.msg_end)
             sys.exit(1)
         else:
-            MessageDialogEnd(error=False, log_file=self.log_name, title=self.prog_name, msg1="OK",
+            self.delete()
+            if not no_windows :
+                MessageDialogEnd(error=False, log_file=self.log_name, title=self.prog_name, msg1="OK",
                              msg2=self.msg_end)
