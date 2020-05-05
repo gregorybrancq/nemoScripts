@@ -40,7 +40,7 @@ class NemoProgram(NemoBase):
     def compute(self):
         """Execute the program for the first argument.
         """
-        (dir_name, file_name, file_ext) = self.file_list[0]
+        (dir_name, file_name, file_ext) = self.file_list_in[0]
         cmd = self.command.split(" ")
         if dir_name != "":
             os.chdir(dir_name)
@@ -53,5 +53,5 @@ class NemoProgram(NemoBase):
         """ Get the file list, execute the program only for the first argument.
         """
         self.getFileList()
-        if len(self.file_list) != 0:
+        if len(self.file_list_in) != 0:
             self.compute()
