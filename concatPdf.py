@@ -22,10 +22,10 @@ class ConcatPdf(NemoOneCommand):
         command = "pdftk"
         file_list_option = ""
         command_output_option = "cat output"
-        delete_file = False
+        delete_file = True
         auth_ext = [".pdf", ".PDF"]
         msg_not_found = "No pdf file has been found."
-        res_file = "concat_pdf.pdf"
+        res_file = ""
         self.setConfig(command, file_list_option, command_output_option,
                        delete_file, auth_ext, res_file, msg_not_found)
         self.runCommand()

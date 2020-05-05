@@ -25,7 +25,7 @@ class ConcatMP4(NemoOneCommand):
         delete_file = False
         auth_ext = [".mp4", ".MP4", ".avi", ".AVI"]
         msg_not_found = "No video has been found."
-        res_file = "concat_video.mp4"
+        res_file = ""
         self.setConfig(command, file_list_option, command_output_option,
                        delete_file, auth_ext, res_file, msg_not_found)
         self.runCommand()

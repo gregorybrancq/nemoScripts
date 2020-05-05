@@ -9,8 +9,6 @@ import os
 import subprocess
 import sys
 
-import send2trash
-
 from nemoBase import NemoBase
 
 sys.path.append('/home/greg/Greg/work/env/pythonCommon')
@@ -63,24 +61,43 @@ class NemoOneCommand(NemoBase):
         """
         # Initialize the command
         cmd = self.command.split(" ")
+        output_file_name = ""
+        output_file_ext = ""
 
-        for (dir_name, file_name, file_ext) in self.file_list:
+        for (dir_name, file_name, file_ext) in self.file_list_in:
             # option for each file
             if self.file_list_option:
                 in_opt = self.file_list_option.split(" ")
                 cmd += in_opt
 
+            # keep first file name for output file
+            if output_file_name == "":
+                output_file_name = file_name
+                output_file_ext = file_ext
+
             # input file name
             cmd.append(os.path.join(dir_name, file_name + file_ext))
 
         # out option
-        if self.command_output_option :
+        if self.command_output_option:
             out_opt = self.command_output_option.split(" ")
             cmd += out_opt
 
         # output name
-        if self.res_file :
-            cmd.append(self.res_file)
+        if not self.res_file:
+            # no res_file given in parameter
+            # need to define it
+            find_name = False
+            i = 0
+            output_name = output_file_name + output_file_ext
+            while not find_name:
+                if not os.path.exists(output_name):
+                    find_name = True
+                else:
+                    output_name = output_file_name + "_" + str(i) + output_file_ext
+                    i += 1
+            self.res_file = output_name
+        cmd.append(self.res_file)
 
         self.logOC.debug("command = %s" % str(cmd))
 
@@ -94,8 +111,3 @@ class NemoOneCommand(NemoBase):
                 self.msg_end += "cmd failed :\n  %s\n" % str(cmd)
         else:
             self.msg_end += "Executed : %s\n" % (os.path.join(os.getcwd(), self.res_file))
-
-            # Delete file
-            if self.delete_file:
-                for (dir_name, file_name, file_ext) in self.file_list:
-                    send2trash.send2trash(os.path.join(dir_name, file_name + file_ext))
