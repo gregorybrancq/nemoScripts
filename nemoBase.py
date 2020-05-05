@@ -147,9 +147,9 @@ class NemoBase:
                     # same extension, need to replace the input file with resulted file
                     self.temp_file = os.path.join("/tmp", file_name + self.res_ext)
                     cmd.append(self.temp_file)
-                    for com in cmd :
+                    for com in cmd:
                         # particular case for reducePdfWeight
-                        if re.search("output_file_to_replace", com) :
+                        if re.search("output_file_to_replace", com):
                             cmd.remove(com)
                             cmd.remove(self.temp_file)
                             cmd.remove(file_name + file_ext)
@@ -157,7 +157,7 @@ class NemoBase:
                             cmd.append(file_name + file_ext)
                 else:
                     cmd.append(file_name + self.res_ext)
-                    self.file_list_out.append(os.path.join(os.getcwd(),file_name + self.res_ext))
+                    self.file_list_out.append(os.path.join(os.getcwd(), file_name + self.res_ext))
             self.logNB.info("Run command %s" % str(cmd))
 
             # Execute the command
@@ -172,7 +172,7 @@ class NemoBase:
                 if self.temp_file:
                     self.replace(file_name + file_ext)
 
-                else :
+                else:
                     if self.res_ext != "":
                         self.msg_end += "Executed : %s\n" % (os.path.join(os.getcwd(), file_name + self.res_ext))
                     else:
@@ -210,6 +210,6 @@ class NemoBase:
             sys.exit(1)
         else:
             self.delete()
-            if not no_windows :
+            if not no_windows:
                 MessageDialogEnd(error=False, log_file=self.log_name, title=self.prog_name, msg1="OK",
-                             msg2=self.msg_end)
+                                 msg2=self.msg_end)

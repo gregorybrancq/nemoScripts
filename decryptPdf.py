@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Convert bmp to jpg
+Decrypt pdf file
 """
 
 # Import
@@ -31,7 +31,8 @@ class DecryptPdf(NemoBase):
         auth_ext = [".pdf", ".PDF"]
         res_ext = ".pdf"
         msg_not_found = "No pdf file has been found."
-        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_options, command_set_output,
+                       delete_file, auth_ext, res_ext, msg_not_found)
         self.runCommand()
 
 

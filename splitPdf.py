@@ -30,7 +30,8 @@ class SplitPdf(NemoBase):
         auth_ext = [".pdf", ".PDF"]
         res_ext = "_%04d.pdf"
         msg_not_found = "No pdf file has been found."
-        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_options, command_set_output,
+                       delete_file, auth_ext, res_ext, msg_not_found)
         self.runCommand()
 
 

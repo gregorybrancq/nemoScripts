@@ -24,11 +24,13 @@ class PhotoReduce(NemoBase):
 
     def askPercent(self):
         win_title = "Reduce photo size"
-        resize_percent_str = MessageDialog(dialog_type='entry', title=win_title, message1="Quelle est le pourcentage de réduction ?").run()
+        resize_percent_str = MessageDialog(dialog_type='entry', title=win_title,
+                                           message1="Quelle est le pourcentage de réduction ?").run()
         try :
             resize_percent=int(resize_percent_str)
         except ValueError :
-            MessageDialog(type_='error', title=win_title, message="\nle pourcentage doit être un chiffre entre 0 et 100.\n").run()
+            MessageDialog(type_='error', title=win_title,
+                          message="\nle pourcentage doit être un chiffre entre 0 et 100.\n").run()
             sys.exit(1)
         self.logCB.debug("resize_percent=%s"%str(resize_percent))
         return resize_percent
@@ -39,10 +41,12 @@ class PhotoReduce(NemoBase):
         command_options = ""
         command_set_output = False
         delete_file = False
-        auth_ext = [".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".TIF", ".gif", ".GIF", ".bmp", ".BMP"]
+        auth_ext = [".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".TIF",
+                    ".gif", ".GIF", ".bmp", ".BMP"]
         res_ext = ""
         msg_not_found = "No image has been found."
-        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_options, command_set_output,
+                       delete_file, auth_ext, res_ext, msg_not_found)
         self.runCommand()
 
 

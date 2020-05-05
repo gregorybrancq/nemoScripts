@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Convert bmp to jpg
+Send file to ftp Free
 """
 
 # Import
@@ -26,7 +26,8 @@ class SendByFtpFree(NemoBase):
         auth_ext = []
         res_ext = ""
         msg_not_found = "No file has been found."
-        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_options, command_set_output,
+                       delete_file, auth_ext, res_ext, msg_not_found)
         self.runCommand()
 
 

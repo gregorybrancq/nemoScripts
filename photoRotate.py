@@ -26,7 +26,8 @@ class ConvertExif(NemoBase):
         auth_ext = [".JPG", ".jpg", ".JPEG", ".jpeg"]
         res_ext = ""
         msg_not_found = "No image has been found."
-        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_options, command_set_output,
+                       delete_file, auth_ext, res_ext, msg_not_found)
         self.runCommand()
 
 

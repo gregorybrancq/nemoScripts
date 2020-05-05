@@ -28,7 +28,8 @@ class ConvertM2ts2Avi(NemoBase):
         auth_ext = [".m2ts", ".M2TS"]
         res_ext = ".avi"
         msg_not_found = "No video has been found."
-        self.setConfig(command, command_options, command_set_output, delete_file, auth_ext, res_ext, msg_not_found)
+        self.setConfig(command, command_options, command_set_output,
+                       delete_file, auth_ext, res_ext, msg_not_found)
         self.runCommand()
 
 
