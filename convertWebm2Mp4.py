@@ -1,155 +1,45 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'''
-Convert Webm to MP4
-'''
+"""
+Convert webm to mp4
+"""
+
+# Import
+import logging
+
+from common import createLog, parsingLine
+from nemoBase import NemoBase
 
 
+class ConvertWebm2Mp4(NemoBase):
+    def __init__(self, root_log, args):
+        root_log_name = '.'.join([root_log, self.__class__.__name__])
+        self.logCB = logging.getLogger(root_log_name)
+        super().__init__(root_log, root_log_name, args)
 
-## Import
-import sys
-import os
-from datetime import datetime
-import subprocess
-from optparse import OptionParser
-
-## common
-from python_common import *
-HEADER = "WebmTOmp4"
-
-## directory
-logDir   = getLogDir()
-
-###############################################
-
-
-
-###############################################
-###############################################
-##              Line Parsing                 ##
-###############################################
-###############################################
-
-parsedArgs = {}
-parser = OptionParser()
+    def run(self, no_windows=False):
+        command = "ffmpeg -i"
+        command_options = ""
+        command_set_output = True
+        delete_file = True
+        auth_ext = [".webm", ".WEBM"]
+        res_ext = ".mp4"
+        msg_not_found = "No video has been found."
+        self.setConfig(command, command_options, command_set_output, delete_file,
+                       auth_ext, res_ext, msg_not_found)
+        self.runCommand(no_windows)
 
 
-parser.add_option(
-    "-d",
-    "--debug",
-    action  = "store_true",
-    dest    = "debug",
-    default = False,
-    help    = "Display all debug information"
-    )
-
-(parsedArgs , args) = parser.parse_args()
-
-###############################################
-
-
-
-###############################################
-## Global variables
-###############################################
-
-t = str(datetime.today().isoformat("_"))
-logFile = os.path.join(logDir, HEADER + "_" + t + ".log")
-errC = 0
-
-###############################################
-
-
-
-
-
-###############################################
-###############################################
-##                FUNCTIONS                  ##
-###############################################
-###############################################
-
-def convertFile(fileList) :
-    global log
-    global errC
-    log.info(HEADER, "In  convertFile")
-
-    oldDir = os.getcwd()
-
-    for (fileD, fileN, fileE) in fileList :
-        log.info(HEADER, "In  convertFile directory " + str(fileD) + "  convertFile " + fileN + fileE)
-
-        if (fileD != "") :
-            os.chdir(fileD)
-
-        cmd='ffmpeg -i "' + fileN + fileE + '" "' + fileN + '.mp4"'
-        log.info(HEADER, "In  convertFile cmd=" + str(cmd))
-        procPopen = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT)
-        procPopen.wait()
-        if (procPopen.returncode != 0) :
-            errC += 1
-            log.error(HEADER, "In  convertFile file: issue with " + str(os.path.join(fileD, fileN + fileE)))
-
-        if (fileD != "") :
-            os.chdir(oldDir)
-
-    log.info(HEADER, "Out convertFile")
-
-###############################################
-
-
-
-
-
-
-###############################################
-###############################################
-###############################################
-##                 MAIN                      ##
-###############################################
-###############################################
-###############################################
-
-
-def main() :
-    global log
-    warnC = 0
-    log.info(HEADER, "In  main")
-
-    fileList = list()
-
-    log.info(HEADER, "In  main parsedArgs=" + str(parsedArgs))
-    log.info(HEADER, "In  main args=" + str(args))
-
-    ## Create list of files
-    extAuth=[".webm", ".WEBM"]
-    (fileList, warnC) = listFromArgs(log, HEADER, args, extAuth)
-
-    ## Verify if there is at least one video to convert
-    if (len(fileList) == 0) :
-        MessageDialog(type_='error', title="Convert WEBM files", message="\nNo video has been found\n").run()
-    else :
-        log.info(HEADER, "In  main videos to convert = " + str(len(fileList)))
-
-    ## Convert them
-    convertFile(fileList)
-
-    ## End dialog
-    MessageDialogEnd(warnC, errC, logFile, "Convert video", "\nJob fini : " + str(len(fileList)) + " video converties.")
-
-    log.info(HEADER, "Out main")
-
-###############################################
-
-
+def main():
+    # Create log class
+    root_log = 'convertWebm2Mp4'
+    (parsedArgs, args) = parsingLine()
+    logger = createLog(root_log, parsedArgs)
+    logger.info("START")
+    ConvertWebm2Mp4(root_log, args).run()
+    logger.info("STOP")
 
 
 if __name__ == '__main__':
- 
-    ## Create log class
-    log = LOGC(logFile, HEADER, parsedArgs.debug)
-
     main()
-
-
