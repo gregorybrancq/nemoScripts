@@ -40,7 +40,7 @@ def main():
     logger.info("START")
     logger.debug("args = %s"%str(args))
     ConvertJpg2Pdf(root_log, args).run()
-    logger.info("STOP")
+    logger.info("STOP\n")
 
 
 if __name__ == '__main__':

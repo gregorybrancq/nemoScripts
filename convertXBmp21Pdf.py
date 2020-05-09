@@ -24,7 +24,7 @@ def main():
     convert_all_jpg_2_pdf.run(no_windows=True)
     file_list_all_pdf = convert_all_jpg_2_pdf.getOutFileList()
     ConcatPdf(root_log, file_list_all_pdf).run()
-    logger.info("STOP")
+    logger.info("STOP\n")
 
 
 if __name__ == '__main__':

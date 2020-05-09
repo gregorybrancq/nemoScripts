@@ -38,7 +38,7 @@ def main():
     logger = createLog(root_log, parsedArgs)
     logger.info("START")
     ConvertWebm2Mp4(root_log, args).run()
-    logger.info("STOP")
+    logger.info("STOP\n")
 
 
 if __name__ == '__main__':
