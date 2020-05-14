@@ -18,11 +18,11 @@ class ConvertJpg2Pdf(NemoBase):
         self.logCB = logging.getLogger(root_log_name)
         super().__init__(root_log, root_log_name, args)
 
-    def run(self, no_windows=False):
+    def run(self, no_windows=False, delete_file=True):
         command = "convert"
         command_options = ""
         command_set_output = True
-        delete_file = True
+        delete_file = delete_file
         auth_ext = [".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".TIF",
                     ".gif", ".GIF", ".bmp", ".BMP"]
         res_ext = ".pdf"

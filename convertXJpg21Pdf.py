@@ -17,7 +17,7 @@ def main():
     logger = createLog(root_log, parsedArgs)
     logger.info("START")
     convert_all_jpg_2_pdf = ConvertJpg2Pdf(root_log, args)
-    convert_all_jpg_2_pdf.run(no_windows=True)
+    convert_all_jpg_2_pdf.run(no_windows=True, delete_file=False)
     file_list_all_pdf = convert_all_jpg_2_pdf.getOutFileList()
     ConcatPdf(root_log, file_list_all_pdf).run()
     logger.info("STOP\n")
