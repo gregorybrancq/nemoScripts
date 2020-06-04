@@ -77,7 +77,7 @@ class SplitFlacWithCue(NemoBase):
         command_options = ""
         command_set_output = False
         delete_file = False
-        auth_ext = [".flac", ".FLAC", ".cue", ".CUE"]
+        auth_ext = [".flac", ".cue"]
         res_ext = ""
         msg_not_found = "Need exactly 2 audio files in same directory : .flac and .cue."
         self.setConfig(command, command_options, command_set_output, delete_file,

@@ -41,8 +41,7 @@ class PhotoReduce(NemoBase):
         command_options = ""
         command_set_output = False
         delete_file = False
-        auth_ext = [".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".TIF",
-                    ".gif", ".GIF", ".bmp", ".BMP"]
+        auth_ext = [".jpg", ".jpeg", ".tif", ".gif", ".bmp"]
         res_ext = ""
         msg_not_found = "No image has been found."
         self.setConfig(command, command_options, command_set_output,

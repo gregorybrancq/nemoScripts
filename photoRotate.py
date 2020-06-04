@@ -23,7 +23,7 @@ class ConvertExif(NemoBase):
         command_options = ""
         command_set_output = False
         delete_file = False
-        auth_ext = [".JPG", ".jpg", ".JPEG", ".jpeg"]
+        auth_ext = [".jpg", ".jpeg"]
         res_ext = ""
         msg_not_found = "No image has been found."
         self.setConfig(command, command_options, command_set_output,

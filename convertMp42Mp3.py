@@ -23,7 +23,7 @@ class ConvertMp42Mp3(NemoBase):
         command_options = ""
         command_set_output = False
         delete_file = False
-        auth_ext = [".mp4", ".MP4"]
+        auth_ext = [".mp4"]
         res_ext = ".mp3"
         msg_not_found = "No video has been found."
         self.setConfig(command, command_options, command_set_output,

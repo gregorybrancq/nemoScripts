@@ -23,7 +23,7 @@ class ConvertWebm2Mp4(NemoBase):
         command_options = ""
         command_set_output = True
         delete_file = True
-        auth_ext = [".webm", ".WEBM"]
+        auth_ext = [".webm"]
         res_ext = ".mp4"
         msg_not_found = "No video has been found."
         self.setConfig(command, command_options, command_set_output, delete_file,

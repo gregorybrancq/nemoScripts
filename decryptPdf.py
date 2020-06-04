@@ -28,7 +28,7 @@ class DecryptPdf(NemoBase):
         command_options = ""
         command_set_output = True
         delete_file = False
-        auth_ext = [".pdf", ".PDF"]
+        auth_ext = [".pdf"]
         res_ext = ".pdf"
         msg_not_found = "No pdf file has been found."
         self.setConfig(command, command_options, command_set_output,

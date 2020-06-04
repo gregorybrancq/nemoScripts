@@ -82,7 +82,9 @@ class NemoBase:
         dir_n2 = dir_n1.replace(')', '\)')
         file_name_wo_dir = re.sub(dir_n2 + "\/", '', file_name)
         (fileN, extN) = os.path.splitext(file_name_wo_dir)
-        if len(self.auth_ext) == 0 or self.auth_ext.__contains__(extN):
+        if len(self.auth_ext) == 0 or self.auth_ext.__contains__(extN) \
+                or self.auth_ext.__contains__(extN.lower()) \
+                or self.auth_ext.__contains__(extN.upper()):
             self.logNB.debug("In  _addFile dir_n=" + str(dir_n) + ", fileN=" + str(fileN) + ", extN=" + str(extN))
             self.file_list_in.append([dir_n, fileN, extN])
         else:
