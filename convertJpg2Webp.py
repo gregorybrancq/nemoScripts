@@ -20,7 +20,7 @@ class ConvertJpg2Wepb(NemoBase):
 
     def run(self, no_windows=False):
         command = "cwebp"
-        command_options = "-q 90"
+        command_options = "-q 90 -o"
         command_set_output = True
         delete_file = False
         auth_ext = [".jpg", ".jpeg", ".png"]
