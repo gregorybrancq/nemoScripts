@@ -28,12 +28,15 @@ class NemoBase:
 
         :param log_name: it indicates the log name
         :param root_log: allows to keep hierarchy for logging
-        :param arguments: arguments pass out to the file program (Nemo or Nautilus
+        :param arguments: arguments pass out to the file program Nemo or Nautilus
         """
         self.logNB = logging.getLogger('.'.join([root_log, __name__]))
         self.logNB.debug("In init nemoBase")
         self.prog_name = log_name
         self.log_name = os.path.join(getLogDir(), log_name) + ".log"
+        if type(arguments) != list:
+            self.logNB.error("Arguments is not a list")
+            sys.exit(1)
         self.arguments = arguments
         self.command = str()
         self.command_options = str()
