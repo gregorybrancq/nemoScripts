@@ -22,13 +22,13 @@ def main():
     for arg in args:
         if re.search(".bmp", arg) or re.search(".BMP", arg):
             # Convert BMP files
-            convert_bmp_2_jpg = ConvertBmp2Jpg(root_log, [arg], delete_file=False)
+            convert_bmp_2_jpg = ConvertBmp2Jpg(root_log, [arg], delete_file=True)
             convert_bmp_2_jpg.run(no_windows=True)
             file_list_all_jpg.append(convert_bmp_2_jpg.getOutFileList()[0])
         else:
             file_list_all_jpg.append(arg)
 
-    #  Convert JPG files to PDF
+    # Convert JPG files to PDF
     convert_all_jpg_2_pdf = ConvertJpg2Pdf(root_log, file_list_all_jpg, delete_file=False)
     convert_all_jpg_2_pdf.run(no_windows=True)
 
