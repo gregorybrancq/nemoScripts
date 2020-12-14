@@ -12,7 +12,7 @@ import sys
 
 import send2trash
 
-sys.path.append('/home/greg/Greg/work/env/pythonCommon')
+sys.path.append('/home/greg/Config/env/pythonCommon')
 from basic import getLogDir
 from message import MessageDialogEnd
 

@@ -11,7 +11,7 @@ import sys
 
 from nemoBase import NemoBase
 
-sys.path.append('/home/greg/Greg/work/env/pythonCommon')
+sys.path.append('/home/greg/Config/env/pythonCommon')
 
 
 class NemoOneCommand(NemoBase):

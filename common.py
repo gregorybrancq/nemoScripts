@@ -11,7 +11,7 @@ from optparse import OptionParser
 import logging
 from logging.handlers import RotatingFileHandler
 
-sys.path.append('/home/greg/Greg/work/env/pythonCommon')
+sys.path.append('/home/greg/Config/env/pythonCommon')
 from basic import getLogDir
 
 

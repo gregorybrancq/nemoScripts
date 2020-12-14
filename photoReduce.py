@@ -12,7 +12,7 @@ import logging
 from common import createLog, parsingLine
 from nemoBase import NemoBase
 
-sys.path.append('/home/greg/Greg/work/env/pythonCommon')
+sys.path.append('/home/greg/Config/env/pythonCommon')
 from message import MessageDialog
 
 
