@@ -127,7 +127,11 @@ class NemoBase:
         """
         if self.delete_file:
             for (dir_name, file_name, file_ext) in self.file_list_in:
-                send2trash.send2trash(os.path.join(dir_name, file_name + file_ext))
+                try:
+                    send2trash.send2trash(os.path.join(dir_name, file_name + file_ext))
+                except OSError:
+                    self.logNB.warning("In  delete, impossible to delete file %s" % (os.path.join(dir_name, file_name + file_ext)))
+                    
 
     def compute(self):
         """Execute the command for each file and examine the result.
