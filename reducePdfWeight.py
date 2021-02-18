@@ -11,7 +11,7 @@ import os
 import shutil
 import sys
 
-sys.path.append('/home/greg/Config/env/pythonCommon')
+sys.path.append('/home/greg/Tools/env/pythonCommon')
 from basic import humanSize
 from common import createLog, parsingLine
 from nemoBase import NemoBase
