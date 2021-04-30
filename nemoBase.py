@@ -47,6 +47,7 @@ class NemoBase:
         self.msg_not_found = str()
         self.file_list_in = list()
         self.file_list_out = list()
+        self.msg_status = ""
         self.msg_end = ""
         self.error = False
         self.temp_file = ""  # temporary file
@@ -79,7 +80,7 @@ class NemoBase:
         :param file_name: the file to treat
         :return: update file_list attribute
         """
-        self.logNB.debug("In  _addFile file_name=" + str(file_name))
+        #self.logNB.debug("In  _addFile file_name=" + str(file_name))
         dir_n = os.path.dirname(file_name)
         dir_n1 = dir_n.replace('(', '\(')
         dir_n2 = dir_n1.replace(')', '\)')
@@ -88,7 +89,7 @@ class NemoBase:
         if len(self.auth_ext) == 0 or self.auth_ext.__contains__(extN) \
                 or self.auth_ext.__contains__(extN.lower()) \
                 or self.auth_ext.__contains__(extN.upper()):
-            self.logNB.debug("In  _addFile dir_n=" + str(dir_n) + ", fileN=" + str(fileN) + ", extN=" + str(extN))
+            #self.logNB.debug("In  _addFile dir_n=" + str(dir_n) + ", fileN=" + str(fileN) + ", extN=" + str(extN))
             self.file_list_in.append([dir_n, fileN, extN])
         else:
             self.msg_end += "File %s has not a good extension (%s)\n" % (file_name_wo_dir, str(self.auth_ext))
@@ -117,6 +118,11 @@ class NemoBase:
         """
         return self.file_list_out
 
+    def getResult(self):
+        """ Return result of the process
+        """
+        return self.log_name, self.msg_status, self.msg_end
+
     def replace(self, file_name):
         """Function to replace the input file by output file
         """
@@ -131,7 +137,6 @@ class NemoBase:
                     send2trash.send2trash(os.path.join(dir_name, file_name + file_ext))
                 except OSError:
                     self.logNB.warning("In  delete, impossible to delete file %s" % (os.path.join(dir_name, file_name + file_ext)))
-                    
 
     def compute(self):
         """Execute the command for each file and examine the result.
@@ -208,17 +213,20 @@ class NemoBase:
         """Print a message dialog with the result of the command.
         """
         if len(self.file_list_in) == 0:
-            MessageDialogEnd(error=True, log_file=self.log_name, title=self.prog_name, msg1="ERROR",
+            self.msg_status = "ERROR"
+            MessageDialogEnd(error=True, log_file=self.log_name, title=self.prog_name, msg1=self.msg_status,
                              msg2=self.msg_not_found)
             self.logNB.error(self.msg_not_found)
             sys.exit(1)
         elif self.error:
-            MessageDialogEnd(error=True, log_file=self.log_name, title=self.prog_name, msg1="ERROR",
+            self.msg_status = "ERROR"
+            MessageDialogEnd(error=True, log_file=self.log_name, title=self.prog_name, msg1=self.msg_status,
                              msg2=self.msg_end)
             self.logNB.error(self.msg_end)
             sys.exit(1)
         else:
+            self.msg_status = "PASS"
             self.delete()
             if not no_windows:
-                MessageDialogEnd(error=False, log_file=self.log_name, title=self.prog_name, msg1="OK",
+                MessageDialogEnd(error=False, log_file=self.log_name, title=self.prog_name, msg1=self.msg_status,
                                  msg2=self.msg_end)

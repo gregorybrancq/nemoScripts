@@ -18,7 +18,7 @@ class ConcatPdf(NemoOneCommand):
         self.logCB = logging.getLogger(root_log_name)
         super().__init__(root_log, root_log_name, args)
 
-    def run(self):
+    def run(self, no_windows=False):
         command = "pdftk"
         file_list_option = ""
         command_output_option = "cat output"
@@ -28,7 +28,7 @@ class ConcatPdf(NemoOneCommand):
         res_file = ""
         self.setConfig(command, file_list_option, command_output_option,
                        delete_file, auth_ext, res_file, msg_not_found)
-        self.runCommand()
+        self.runCommand(no_windows)
 
 
 def main():
