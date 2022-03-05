@@ -34,7 +34,9 @@ def main():
                 for filename in filenames:
                     if re.search(".bmp", filename) or re.search(".BMP", filename):
                         # Convert BMP files
+                        logger.debug("Bmp files : %s" % str(filename))
                         convert_bmp_2_jpg = ConvertBmp2Jpg(root_log, [filename], delete_file=True)
+                        logger.debug("Convert file : %s" % str(filename))
                         convert_bmp_2_jpg.run(no_windows=True)
                         file_list_all_jpg.append(convert_bmp_2_jpg.getOutFileList()[0])
                     else:
