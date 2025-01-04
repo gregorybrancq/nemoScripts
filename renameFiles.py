@@ -19,7 +19,7 @@ class RenameFiles(NemoProgram):
         super().__init__(root_log, root_log_name, args)
 
     def run(self):
-        command = "pyrenamer"
+        command = "pgrename"
         self.setConfig(command)
         self.runCommand()
 
